@@ -1,7 +1,6 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include "renderer.hpp"
-#include "solver.hpp"
 
 int32_t main()
 {
@@ -16,6 +15,7 @@ int32_t main()
     const uint32_t frame_rate = 60;
     window.setFramerateLimit(frame_rate);
     Renderer renderer(window);
+    Solver solver;
 
     while (window.isOpen())
     {
@@ -24,8 +24,9 @@ int32_t main()
             if (event->is<sf::Event::Closed>())
                 window.close();
         }
+        solver.update();
         window.clear(sf::Color::White);
-        renderer.update();
+        renderer.update(solver);
         window.display();
     }
     return 0;
