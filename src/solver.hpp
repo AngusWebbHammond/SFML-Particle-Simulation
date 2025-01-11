@@ -72,11 +72,18 @@ public:
         particles.back().acceleration = acceleration;
     }
 
+    void setVelocity(sf::Vector2f velocity)
+    {
+        Particle &finalParticle = particles.back();
+        sf::Vector2f vel = {velocity.x / subStep, velocity.y / subStep};
+        finalParticle.setVelocity(vel, dt);
+    }
+
 private:
     std::vector<Particle> particles;
     float dt = 1.0f / 60;
-    int subStep = 10;
-    sf::Vector2f gravity = {0.0f, 1000.0f / subStep};
+    int subStep = 8;
+    sf::Vector2f gravity = {0.0f, 200.0f / subStep};
     float window_height;
     float window_width;
 
@@ -100,7 +107,7 @@ private:
     {
         for (auto &particle : particles)
         {
-            float damp = 0.7f;
+            float damp = 0.8f;
             const sf::Vector2f pos = particle.position;
             sf::Vector2f vel = particle.getVelocity();
             sf::Vector2f newPosition = particle.position;

@@ -1,11 +1,14 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include "renderer.hpp"
+#include <time.h>
 
 int32_t main()
 {
-    constexpr int32_t window_width = 2000;
+    constexpr int32_t window_width = 1000;
     constexpr int32_t window_height = 1000;
+
+    clock_t c = clock();
 
     sf::ContextSettings settings;
     settings.antiAliasingLevel = 1;
@@ -19,27 +22,9 @@ int32_t main()
     Renderer renderer(window);
     Solver solver(window_width, window_height);
 
-    for (float i = 0; i < 20; i++)
-    {
-        float x = i * 30.0f;
-        for (float j = 0; j < 20; j++)
-        {
-            float y = j * 30.0f;
-            std::cout << x << " ," << y << "\n";
-            solver.addParticle({x, y}, 10.0f, {10000.0f, 0.0f});
-        }
-    }
-
-    for (float i = 0; i < 5; i++)
-    {
-        float x = window_width - i * 30.0f;
-        for (float j = 0; j < 20; j++)
-        {
-            float y = j * 30.0f;
-            std::cout << x << " ," << y << "\n";
-            solver.addParticle({x, y}, 10.0f, {-10000.0f, 0.0f});
-        }
-    }
+    const int maxParticles = 500;
+    const clock_t spawnDelay = CLOCKS_PER_SEC * 0.1;
+    const sf::Vector2f spawnPosition = {10, 10};
 
     while (window.isOpen())
     {
@@ -47,6 +32,15 @@ int32_t main()
         {
             if (event->is<sf::Event::Closed>())
                 window.close();
+        }
+
+        if (solver.getParticles().size() < maxParticles && clock() - c > spawnDelay)
+        {
+            float randomVel = rand() % 600;
+            float randomSize = rand() % 20;
+            solver.addParticle(spawnPosition, 15, {0, 0});
+            solver.setVelocity({randomVel, 0.0f});
+            c = clock();
         }
 
         solver.update();
