@@ -49,10 +49,8 @@ public:
     void update()
     {
         applyGravity();
-        for (auto &particle : particles)
-        {
-            particle.update(dt);
-        }
+        calculateBoundary();
+        updateParticles();
     }
 
     std::vector<Particle> getParticles()
@@ -75,6 +73,27 @@ private:
         for (auto &particle : particles)
         {
             particle.accelerate(gravity);
+        }
+    }
+
+    void updateParticles()
+    {
+        for (auto &particle : particles)
+        {
+            particle.update(dt);
+        }
+    }
+
+    void calculateBoundary()
+    {
+        for (auto &particle : particles)
+        {
+            if (particle.position.y >= 840.0f - particle.radius)
+            {
+                sf::Vector2f velocity = particle.getVelocity(dt);
+                particle.setVelocity(-velocity, dt);
+                particle.accelerate(-particle.acceleration);
+            }
         }
     }
 };
