@@ -46,6 +46,8 @@ struct Particle
 class Solver
 {
 public:
+    Solver(float width, float height) : window_width{width}, window_height{height} {}
+
     void update()
     {
         for (int i; i < subStep; i++)
@@ -71,6 +73,8 @@ private:
     float dt = 1.0f / 60;
     int subStep = 8;
     sf::Vector2f gravity = {0.0f, 1000.0f / subStep};
+    float window_height;
+    float window_width;
 
     void applyGravity()
     {
@@ -98,21 +102,21 @@ private:
             sf::Vector2f newPosition = particle.position;
             sf::Vector2f dx = {vel.x * damp, -vel.y * damp};
             sf::Vector2f dy = {-vel.x * damp, vel.y * damp};
-            if (pos.y > 840.0f - particle.radius || pos.y < particle.radius)
+            if (pos.y > window_height - particle.radius || pos.y < particle.radius)
             {
                 if (pos.y < particle.radius)
                     newPosition.y = particle.radius;
-                if (pos.y + particle.radius > 840.0f)
-                    newPosition.y = 840.0f - particle.radius;
+                if (pos.y + particle.radius > window_height)
+                    newPosition.y = window_height - particle.radius;
                 particle.position = newPosition;
                 particle.setVelocity(dx, 1.0);
             }
-            if (pos.x > 840.0f - particle.radius || pos.x < particle.radius)
+            if (pos.x > window_width - particle.radius || pos.x < particle.radius)
             {
                 if (pos.x < particle.radius)
                     newPosition.x = particle.radius;
-                if (pos.x + particle.radius > 840.0f)
-                    newPosition.x = 840.0f - particle.radius;
+                if (pos.x + particle.radius > window_width)
+                    newPosition.x = window_width - particle.radius;
                 particle.position = newPosition;
                 particle.setVelocity(dy, 1.0);
             }
