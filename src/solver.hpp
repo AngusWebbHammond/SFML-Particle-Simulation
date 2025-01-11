@@ -9,7 +9,7 @@ struct Particle
     Particle(sf::Vector2f position_, float radius_)
         : last_position{position_},
           position{position_},
-          acceleration{10.0f, 10.0f},
+          acceleration{10000.0f, 10000.0f},
           radius{radius_} {}
 
     void update(float dt)
@@ -21,9 +21,9 @@ struct Particle
         acceleration = {};
     }
 
-    sf::Vector2f getVelocity(float dt)
+    sf::Vector2f getVelocity()
     {
-        sf::Vector2f velocity = (position - last_position) / dt;
+        sf::Vector2f velocity = position - last_position;
         return velocity;
     }
 
@@ -48,9 +48,12 @@ class Solver
 public:
     void update()
     {
-        applyGravity();
-        calculateBoundary();
-        updateParticles();
+        for (int i; i < subStep; i++)
+        {
+            calculateBoundary();
+            applyGravity();
+            updateParticles();
+        }
     }
 
     std::vector<Particle> getParticles()
@@ -65,8 +68,9 @@ public:
 
 private:
     std::vector<Particle> particles;
-    sf::Vector2f gravity = {0.0f, 1000.0f};
     float dt = 1.0f / 60;
+    int subStep = 8;
+    sf::Vector2f gravity = {0.0f, 1000.0f / subStep};
 
     void applyGravity()
     {
@@ -88,11 +92,29 @@ private:
     {
         for (auto &particle : particles)
         {
-            if (particle.position.y >= 840.0f - particle.radius)
+            float damp = 0.7f;
+            const sf::Vector2f pos = particle.position;
+            sf::Vector2f vel = particle.getVelocity();
+            sf::Vector2f newPosition = particle.position;
+            sf::Vector2f dx = {vel.x * damp, -vel.y * damp};
+            sf::Vector2f dy = {-vel.x * damp, vel.y * damp};
+            if (pos.y > 840.0f - particle.radius || pos.y < particle.radius)
             {
-                sf::Vector2f velocity = particle.getVelocity(dt);
-                particle.setVelocity(-velocity, dt);
-                particle.accelerate(-particle.acceleration);
+                if (pos.y < particle.radius)
+                    newPosition.y = particle.radius;
+                if (pos.y + particle.radius > 840.0f)
+                    newPosition.y = 840.0f - particle.radius;
+                particle.position = newPosition;
+                particle.setVelocity(dx, 1.0);
+            }
+            if (pos.x > 840.0f - particle.radius || pos.x < particle.radius)
+            {
+                if (pos.x < particle.radius)
+                    newPosition.x = particle.radius;
+                if (pos.x + particle.radius > 840.0f)
+                    newPosition.x = 840.0f - particle.radius;
+                particle.position = newPosition;
+                particle.setVelocity(dy, 1.0);
             }
         }
     }
