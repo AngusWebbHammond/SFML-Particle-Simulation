@@ -10,11 +10,14 @@ public:
     void update(Solver &solver) const
     {
         sf::CircleShape circle(10.0f);
-        Particle particles = solver.getParticles();
+        std::vector<Particle> particles = solver.getParticles();
         circle.setPointCount(32);
-        circle.setFillColor(sf::Color::Blue);
-        circle.setPosition(particles.position);
-        target.draw(circle);
+        for (auto &particle : particles)
+        {
+            circle.setFillColor(sf::Color::Blue);
+            circle.setPosition(particle.position);
+            target.draw(circle);
+        }
     }
 
 private:

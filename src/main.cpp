@@ -17,6 +17,9 @@ int32_t main()
     Renderer renderer(window);
     Solver solver;
 
+    solver.addParticle({420.0f, 420.0f}, 10.0f);
+    solver.addParticle({420.0f, 0.0f}, 10.0f);
+
     while (window.isOpen())
     {
         while (const std::optional event = window.pollEvent())

@@ -49,21 +49,32 @@ public:
     void update()
     {
         applyGravity();
-        particle.update(dt);
+        for (auto &particle : particles)
+        {
+            particle.update(dt);
+        }
     }
 
-    Particle getParticles()
+    std::vector<Particle> getParticles()
     {
-        return particle;
+        return particles;
+    }
+
+    void addParticle(sf::Vector2f position, float size)
+    {
+        particles.emplace_back(Particle(position, size));
     }
 
 private:
-    Particle particle;
+    std::vector<Particle> particles;
     sf::Vector2f gravity = {0.0f, 1000.0f};
     float dt = 1.0f / 60;
 
     void applyGravity()
     {
-        particle.accelerate(gravity);
+        for (auto &particle : particles)
+        {
+            particle.accelerate(gravity);
+        }
     }
 };
