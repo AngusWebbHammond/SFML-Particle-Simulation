@@ -4,8 +4,8 @@
 
 int32_t main()
 {
-    constexpr int32_t window_width = 840;
-    constexpr int32_t window_height = 840;
+    constexpr int32_t window_width = 2000;
+    constexpr int32_t window_height = 1000;
 
     sf::ContextSettings settings;
     settings.antiAliasingLevel = 1;
@@ -19,8 +19,27 @@ int32_t main()
     Renderer renderer(window);
     Solver solver(window_width, window_height);
 
-    solver.addParticle({420.0f, 420.0f}, 10.0f);
-    solver.addParticle({420.0f, 0.0f}, 30.0f);
+    for (float i = 0; i < 20; i++)
+    {
+        float x = i * 30.0f;
+        for (float j = 0; j < 20; j++)
+        {
+            float y = j * 30.0f;
+            std::cout << x << " ," << y << "\n";
+            solver.addParticle({x, y}, 10.0f, {10000.0f, 0.0f});
+        }
+    }
+
+    for (float i = 0; i < 5; i++)
+    {
+        float x = window_width - i * 30.0f;
+        for (float j = 0; j < 20; j++)
+        {
+            float y = j * 30.0f;
+            std::cout << x << " ," << y << "\n";
+            solver.addParticle({x, y}, 10.0f, {-10000.0f, 0.0f});
+        }
+    }
 
     while (window.isOpen())
     {

@@ -1,3 +1,5 @@
+#include <math.h>
+
 struct Particle
 {
     sf::Vector2f position;
@@ -9,7 +11,7 @@ struct Particle
     Particle(sf::Vector2f position_, float radius_)
         : last_position{position_},
           position{position_},
-          acceleration{10000.0f, 10000.0f},
+          acceleration{10000.0f, 0.0f},
           radius{radius_} {}
 
     void update(float dt)
@@ -50,10 +52,11 @@ public:
 
     void update()
     {
-        for (int i; i < subStep; i++)
+        for (int i = 0; i < subStep; i++)
         {
-            calculateBoundary();
             applyGravity();
+            calculateBoundary();
+            checkCollisions();
             updateParticles();
         }
     }
@@ -63,15 +66,16 @@ public:
         return particles;
     }
 
-    void addParticle(sf::Vector2f position, float size)
+    void addParticle(sf::Vector2f position, float size, sf::Vector2f acceleration)
     {
         particles.emplace_back(Particle(position, size));
+        particles.back().acceleration = acceleration;
     }
 
 private:
     std::vector<Particle> particles;
     float dt = 1.0f / 60;
-    int subStep = 8;
+    int subStep = 10;
     sf::Vector2f gravity = {0.0f, 1000.0f / subStep};
     float window_height;
     float window_width;
@@ -119,6 +123,38 @@ private:
                     newPosition.x = window_width - particle.radius;
                 particle.position = newPosition;
                 particle.setVelocity(dy, 1.0);
+            }
+        }
+    }
+
+    void checkCollisions()
+    {
+        int particlesLen = particles.size();
+        for (int p1Index = 0; p1Index < particlesLen; p1Index++)
+        {
+            Particle &particle1 = particles[p1Index];
+            for (int p2Index = 0; p2Index < particlesLen; p2Index++)
+            {
+                if (p1Index != p2Index)
+                {
+                    Particle &particle2 = particles[p2Index];
+                    sf::Vector2f p1Pos = particle1.position;
+                    sf::Vector2f p2pos = particle2.position;
+                    float summedRadius = particle1.radius + particle2.radius;
+                    sf::Vector2f diff = p1Pos - p2pos;
+                    float distanceSqr = diff.x * diff.x + diff.y * diff.y;
+                    float distance = sqrt(distanceSqr);
+                    if (summedRadius > distance)
+                    {
+                        sf::Vector2f normal = diff / distance;
+                        float totalMass = particle1.radius * particle1.radius + particle2.radius * particle2.radius;
+                        float massRatio = particle1.radius * particle1.radius / totalMass;
+                        float delta = 0.7f * (summedRadius - distance);
+
+                        particle1.position += (1 - massRatio) * normal * delta;
+                        particle2.position -= massRatio * normal * delta;
+                    }
+                }
             }
         }
     }

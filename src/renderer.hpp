@@ -14,7 +14,9 @@ public:
         circle.setPointCount(32);
         for (auto &particle : particles)
         {
-            circle.setRadius(particle.radius / 2);
+            circle.setRadius(particle.radius);
+            circle.setOrigin({particle.radius, particle.radius});
+
             circle.setFillColor(sf::Color::Blue);
             circle.setPosition(particle.position);
             target.draw(circle);
