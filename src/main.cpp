@@ -9,6 +9,20 @@ int32_t main()
     constexpr int32_t window_height = 1000;
 
     clock_t c = clock();
+    float fps;
+    sf::Clock clock_frames = sf::Clock();
+    sf::Time previousTime = clock_frames.getElapsedTime();
+    sf::Time currentTime;
+
+    sf::Font font("C:/Windows/Fonts/arial.ttf");
+
+    sf::Text fpsCounter(font);
+    fpsCounter.setFillColor(sf::Color::Black);
+    fpsCounter.setPosition({0.f, 0.f});
+
+    sf::Text particleCount(font);
+    particleCount.setFillColor(sf::Color::Black);
+    particleCount.setPosition({0.f, 25.f});
 
     sf::ContextSettings settings;
     settings.antiAliasingLevel = 1;
@@ -46,6 +60,16 @@ int32_t main()
         solver.update();
         window.clear(sf::Color::White);
         renderer.update(solver);
+
+        currentTime = clock_frames.getElapsedTime();
+        fps = 1.0f / (currentTime.asSeconds() - previousTime.asSeconds());
+        fpsCounter.setString("FPS = " + std::to_string(round(fps)));
+
+        particleCount.setString("Particles: " + std::to_string(solver.getParticles().size()));
+        window.draw(fpsCounter);
+        window.draw(particleCount);
+
+        previousTime = currentTime;
         window.display();
     }
     return 0;
