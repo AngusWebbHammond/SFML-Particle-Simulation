@@ -1,11 +1,13 @@
 #include <math.h>
-
 struct Particle
 {
     sf::Vector2f position;
     sf::Vector2f last_position;
     sf::Vector2f acceleration;
     float radius = 10.0f;
+    int index;
+    int gridIndex;
+    sf::Vector2i coords;
 
     Particle() = default;
     Particle(sf::Vector2f position_, float radius_)
@@ -44,6 +46,65 @@ struct Particle
         acceleration += a;
     }
 };
+struct Grid
+{
+    sf::Vector2i axisLength;
+    float boxSize;
+    std::vector<int> grid[100][100];
+
+    Grid() = default;
+    Grid(sf::Vector2i axisLength_, float boxSize_)
+        : axisLength{axisLength_},
+          boxSize{boxSize_} {}
+
+    void createGrid(std::vector<Particle> particles)
+    {
+        int x;
+        int y;
+
+        int numParticles = particles.size();
+
+        for (int i = 0; i < numParticles; i++)
+        {
+            sf::Vector2f pos = particles[i].position;
+            x = floor(pos.x / boxSize);
+            y = floor(pos.y / boxSize);
+            grid[x][y].emplace_back(i);
+            particles[i].index = grid[x][y].size();
+        }
+    }
+
+    void moveParticle(Particle p)
+    {
+        sf::Vector2f lastPos = p.last_position;
+        sf::Vector2f pos = p.position;
+
+        int lastX = floor(lastPos.x / boxSize);
+        int lastY = floor(lastPos.y / boxSize);
+        int x = floor(pos.x / boxSize);
+        int y = floor(pos.y / boxSize);
+
+        grid[lastX][lastY].erase(grid[lastX][lastY].begin() + p.gridIndex);
+
+        grid[x][y].emplace_back(p.index);
+
+        p.gridIndex = grid[x][y].size();
+    }
+
+    void addParticle(Particle p)
+    {
+        sf::Vector2f pos = p.position;
+        int x = floor(pos.x / boxSize);
+        int y = floor(pos.y / boxSize);
+        grid[x][y].emplace_back(p.index);
+        p.gridIndex = grid[x][y].size();
+    }
+
+    std::vector<int> returnCell(int x, int y)
+    {
+        return grid[x][y];
+    }
+};
 
 class Solver
 {
@@ -70,6 +131,8 @@ public:
     {
         particles.emplace_back(Particle(position, size));
         particles.back().acceleration = acceleration;
+        particles.back().index = particles.size();
+        particleGrid.addParticle(particles.back());
     }
 
     void setVelocity(sf::Vector2f velocity)
@@ -87,6 +150,8 @@ private:
     float window_height;
     float window_width;
 
+    Grid particleGrid = Grid({window_width, window_height}, 10.f);
+
     void applyGravity()
     {
         for (auto &particle : particles)
@@ -100,6 +165,7 @@ private:
         for (auto &particle : particles)
         {
             particle.update(dt);
+            particleGrid.moveParticle(particle);
         }
     }
 
@@ -164,5 +230,9 @@ private:
                 }
             }
         }
+    }
+
+    void checkCollisionsOptimized()
+    {
     }
 };
