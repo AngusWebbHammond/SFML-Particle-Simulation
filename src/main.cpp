@@ -40,6 +40,8 @@ int32_t main()
     const clock_t spawnDelay = CLOCKS_PER_SEC * 0.1;
     const sf::Vector2f spawnPosition = {10, 10};
 
+    int particleNum = 0;
+
     while (window.isOpen())
     {
         while (const std::optional event = window.pollEvent())
@@ -50,9 +52,10 @@ int32_t main()
 
         if (solver.getParticles().size() < maxParticles && clock() - c > spawnDelay)
         {
+            particleNum++;
             float randomVel = rand() % 600;
             float randomSize = rand() % 20;
-            solver.addParticle(spawnPosition, 15, {0, 0});
+            solver.addParticle(spawnPosition, 10, {0, 0}, particleNum);
             solver.setVelocity({randomVel, 0.0f});
             c = clock();
         }

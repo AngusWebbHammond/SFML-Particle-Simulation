@@ -1,18 +1,125 @@
 #include <math.h>
 
+struct Node;
+
+struct Node
+{
+    int index;
+    Node *ptr;
+
+    Node(int index_) : index{index_}, ptr{nullptr} {};
+};
+
+struct Grid
+{
+    std::vector<Node *> grid;
+
+    void createGrid(int rows, int columns)
+    {
+        for (int i = 0; i < rows * columns; i++)
+        {
+            grid.emplace_back(nullptr);
+        }
+    }
+
+    void addNode(int indexGrid, Node *node)
+    {
+        if (grid[indexGrid] == nullptr)
+        {
+            grid[indexGrid] = node;
+        }
+        else
+        {
+            for (Node *nPtr = grid[indexGrid]; nPtr != nullptr; nPtr = nPtr->ptr)
+            {
+                if (nPtr->ptr == nullptr)
+                {
+                    nPtr->ptr = node;
+                    break;
+                }
+            }
+        }
+    }
+
+    Node *returnNodeAtIndex(int index)
+    {
+        return grid[index];
+    }
+
+    void removeNode(int indexGrid, Node *node)
+    {
+        if (grid[indexGrid] == node)
+        {
+            grid[indexGrid] = node->ptr;
+            node->ptr = nullptr;
+        }
+        else
+        {
+            for (Node *nPtr = grid[indexGrid]; nPtr != nullptr; nPtr = nPtr->ptr)
+            {
+                if (nPtr->ptr == node)
+                {
+                    nPtr->ptr = node->ptr;
+                    node->ptr = nullptr;
+                    break;
+                }
+            }
+        }
+    }
+
+    void moveNode(int prevIndexGrid, int newIndexGrid, Node *node)
+    {
+        removeNode(prevIndexGrid, node);
+        addNode(newIndexGrid, node);
+    }
+
+    void printGrid()
+    {
+        for (auto *node : grid)
+        {
+            if (node == nullptr)
+            {
+                std::cout << node << ", ";
+            }
+            else
+            {
+                if (node->ptr == nullptr)
+                {
+                    std::cout << node << " : Index: " << node->index << ", ";
+                }
+                else
+                {
+                    std::cout << "[";
+                    Node *nodePtr = node;
+                    while (nodePtr != nullptr)
+                    {
+                        std::cout << nodePtr << " : Index: " << nodePtr->index << ", ";
+                        nodePtr = nodePtr->ptr;
+                    }
+
+                    std::cout << "], ";
+                }
+            }
+        }
+        std::cout << "\n";
+    }
+};
+
 struct Particle
 {
     sf::Vector2f position;
     sf::Vector2f last_position;
     sf::Vector2f acceleration;
     float radius = 10.0f;
+    int particleNum;
 
     Particle() = default;
-    Particle(sf::Vector2f position_, float radius_)
+    Particle(sf::Vector2f position_, float radius_, int particleNum_)
         : last_position{position_},
           position{position_},
           acceleration{10000.0f, 0.0f},
-          radius{radius_} {}
+          radius{radius_},
+          particleNum{particleNum_} {}
 
     void update(float dt)
     {
@@ -66,9 +173,9 @@ public:
         return particles;
     }
 
-    void addParticle(sf::Vector2f position, float size, sf::Vector2f acceleration)
+    void addParticle(sf::Vector2f position, float size, sf::Vector2f acceleration, int particleNum)
     {
-        particles.emplace_back(Particle(position, size));
+        particles.emplace_back(Particle(position, size, particleNum));
         particles.back().acceleration = acceleration;
     }
 
