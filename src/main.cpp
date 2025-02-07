@@ -5,6 +5,19 @@
 
 int32_t main()
 {
+    // Grid grid;
+    // Node node1(10);
+    // sf::Vector2i pos = {1, 2};
+    // Node node2(20);
+
+    // grid.createGrid(10, 10);
+    // grid.addNode(pos, &node1);
+    // grid.addNode(pos, &node2);
+
+    // grid.printGrid();
+
+    // grid.moveNode(pos, {3, 2}, &node1);
+    // grid.printGrid();
     constexpr int32_t window_width = 1000;
     constexpr int32_t window_height = 1000;
 
@@ -37,7 +50,7 @@ int32_t main()
     Solver solver(window_width, window_height);
     solver.initialiseSolverGrid();
 
-    const int maxParticles = 1;
+    const int maxParticles = 0;
     const clock_t spawnDelay = CLOCKS_PER_SEC * 0.1;
     const sf::Vector2f spawnPosition = {10, 10};
 

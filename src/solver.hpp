@@ -9,7 +9,7 @@ public:
 
     void initialiseSolverGrid()
     {
-        grid.createGrid(20, 20);
+        grid.createGrid(10, 10);
     }
 
     void update()
@@ -18,7 +18,7 @@ public:
         {
             applyGravity();
             calculateBoundary();
-            checkCollisions();
+            // checkCollisions();
             updateParticles();
         }
     }
@@ -65,8 +65,8 @@ private:
 
     void updateParticles()
     {
-        int pPos;
-        int pos;
+        sf::Vector2i pPos;
+        sf::Vector2i pos;
         for (auto &particle : particles)
         {
             particle.update(dt);

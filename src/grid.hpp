@@ -13,25 +13,30 @@ struct Node
 
 struct Grid
 {
-    std::vector<Node *> grid;
+    std::vector<std::vector<Node *>> grid;
 
     void createGrid(int rows, int columns)
     {
-        for (int i = 0; i < rows * columns; i++)
+        for (int i = 0; i < rows; i++)
         {
-            grid.emplace_back(nullptr);
+            std::vector<Node *> tempGrid = {};
+            for (int j = 0; j < columns; j++)
+            {
+                tempGrid.emplace_back(nullptr);
+            }
+            grid.emplace_back(tempGrid);
         }
     }
 
-    void addNode(int indexGrid, Node *node)
+    void addNode(sf::Vector2i index, Node *node)
     {
-        if (grid[indexGrid] == nullptr)
+        if (grid[index.x][index.y] == nullptr)
         {
-            grid[indexGrid] = node;
+            grid[index.x][index.y] = node;
         }
         else
         {
-            for (Node *nPtr = grid[indexGrid]; nPtr != nullptr; nPtr = nPtr->ptr)
+            for (Node *nPtr = grid[index.x][index.y]; nPtr != nullptr; nPtr = nPtr->ptr)
             {
                 if (nPtr->ptr == nullptr)
                 {
@@ -42,16 +47,16 @@ struct Grid
         }
     }
 
-    void removeNode(int indexGrid, Node *node)
+    void removeNode(sf::Vector2i index, Node *node)
     {
-        if (grid[indexGrid] == node)
+        if (grid[index.x][index.y] == node)
         {
-            grid[indexGrid] = node->ptr;
+            grid[index.x][index.y] = node->ptr;
             node->ptr = nullptr;
         }
         else
         {
-            for (Node *nPtr = grid[indexGrid]; nPtr != nullptr; nPtr = nPtr->ptr)
+            for (Node *nPtr = grid[index.x][index.y]; nPtr != nullptr; nPtr = nPtr->ptr)
             {
                 if (nPtr->ptr == node)
                 {
@@ -63,53 +68,52 @@ struct Grid
         }
     }
 
-    void moveNode(int prevIndex, int newIndex, Node *node)
+    void moveNode(sf::Vector2i prevIndex, sf::Vector2i newIndex, Node *node)
     {
         removeNode(prevIndex, node);
         addNode(newIndex, node);
     }
 
-    int getIndex(sf::Vector2f pos)
+    sf::Vector2i getIndex(sf::Vector2f pos)
     {
-        float xVal = pos.x;
-        float yVal = pos.y;
+        int floorX = floor(pos.x / 10);
+        int floorY = floor(pos.y / 10);
 
-        int floorX = floor(xVal / 20);
-        int floorY = floor(yVal / 20);
-
-        int index = floorX + floorY * (19);
-
-        return index;
+        return {floorX, floorY};
     }
 
     void printGrid()
     {
         std::cout << "[";
-        for (auto *node : grid)
+        for (auto list : grid)
         {
-            if (node == nullptr)
+            for (auto *node : list)
             {
-                std::cout << node << ", ";
-            }
-            else
-            {
-                if (node->ptr == nullptr)
+                if (node == nullptr)
                 {
-                    std::cout << node << " : Index: " << node->index << ", ";
+                    std::cout << node << ", ";
                 }
                 else
                 {
-                    std::cout << "[";
-                    Node *nodePtr = node;
-                    while (nodePtr != nullptr)
+                    if (node->ptr == nullptr)
                     {
-                        std::cout << nodePtr << " : Index: " << nodePtr->index << ", ";
-                        nodePtr = nodePtr->ptr;
+                        std::cout << node << " : Index: " << node->index << ", ";
                     }
+                    else
+                    {
+                        std::cout << "[";
+                        Node *nodePtr = node;
+                        while (nodePtr != nullptr)
+                        {
+                            std::cout << nodePtr << " : Index: " << nodePtr->index << ", ";
+                            nodePtr = nodePtr->ptr;
+                        }
 
-                    std::cout << "], ";
+                        std::cout << "], ";
+                    }
                 }
             }
+            std::cout << "\n";
         }
         std::cout << "]\n";
     }
