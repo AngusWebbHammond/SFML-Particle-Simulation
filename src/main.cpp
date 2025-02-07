@@ -5,19 +5,24 @@
 
 int32_t main()
 {
+    // sf::Clock clock_frames = sf::Clock();
+
     // Grid grid;
-    // Node node1(10);
     // sf::Vector2i pos = {1, 2};
-    // Node node2(20);
 
     // grid.createGrid(10, 10);
-    // grid.addNode(pos, &node1);
-    // grid.addNode(pos, &node2);
+    // grid.addNode(pos, 10);
+    // grid.addNode(pos, 20);
 
     // grid.printGrid();
+    // sf::Time previousTime = clock_frames.getElapsedTime();
 
-    // grid.moveNode(pos, {3, 2}, &node1);
-    // grid.printGrid();
+    // grid.getIndex({120.343, 23.5678});
+
+    // sf::Time currentTime = clock_frames.getElapsedTime();
+
+    // std::cout << currentTime.asSeconds() - previousTime.asSeconds() << "\n";
+
     constexpr int32_t window_width = 1000;
     constexpr int32_t window_height = 1000;
 
@@ -48,9 +53,9 @@ int32_t main()
 
     Renderer renderer(window);
     Solver solver(window_width, window_height);
-    solver.initialiseSolverGrid();
+    solver.initialiseSolverGrid({10, 10});
 
-    const int maxParticles = 0;
+    const int maxParticles = 100;
     const clock_t spawnDelay = CLOCKS_PER_SEC * 0.1;
     const sf::Vector2f spawnPosition = {10, 10};
 

@@ -7,9 +7,10 @@ class Solver
 public:
     Solver(float width, float height) : window_width{width}, window_height{height} {}
 
-    void initialiseSolverGrid()
+    void initialiseSolverGrid(sf::Vector2i size)
     {
-        grid.createGrid(10, 10);
+        gridSize = {size.x - 1, size.y - 1};
+        grid.createGrid(size.x, size.y);
     }
 
     void update()
@@ -18,7 +19,7 @@ public:
         {
             applyGravity();
             calculateBoundary();
-            // checkCollisions();
+            checkCollisions();
             updateParticles();
         }
     }
@@ -30,10 +31,13 @@ public:
 
     void addParticle(sf::Vector2f position, float size, sf::Vector2f acceleration, int particleNum)
     {
-        particles.emplace_back(Particle(position, size, particleNum));
-        particles.back().acceleration = acceleration;
-        nodes.emplace_back(Node(particles.back().particleNum));
-        grid.addNode(grid.getIndex(particles.back().position), &nodes.back());
+        Particle particle(position, size, particleNum);
+        particle.posIndex = grid.getIndex(particle.position, gridSize, {window_width, window_height});
+        particles.emplace_back(particle);
+        particle.acceleration = acceleration;
+        int indexValue = grid.addNode(particle.posIndex, particle.particleNum);
+        particle.indexValue = indexValue;
+        // std::cout << "IndexVal: " << particle.indexValue << "\n";
     }
 
     void setVelocity(sf::Vector2f velocity)
@@ -47,6 +51,8 @@ private:
     std::vector<Particle> particles;
     std::vector<Node> nodes;
     Grid grid;
+
+    sf::Vector2i gridSize;
 
     float dt = 1.0f / 60;
     int subStep = 8;
@@ -65,17 +71,18 @@ private:
 
     void updateParticles()
     {
-        sf::Vector2i pPos;
         sf::Vector2i pos;
         for (auto &particle : particles)
         {
             particle.update(dt);
 
-            pPos = grid.getIndex(particle.last_position);
-            pos = grid.getIndex(particle.position);
-            if (pos != pPos)
+            pos = grid.getIndex(particle.position, gridSize, {window_width, window_height});
+            if (pos.x != particle.posIndex.x || pos.y != particle.posIndex.y)
             {
-                grid.moveNode(pPos, pos, &nodes[particle.particleNum - 1]);
+                // std::cout << "Move Node \n";
+                // std::cout << particle.indexValue << ", " << particle.particleNum << "\n";
+                particle.indexValue = grid.moveNode(particle.posIndex, pos, particle.indexValue, particle.particleNum);
+                particle.posIndex = pos;
             }
         }
     }

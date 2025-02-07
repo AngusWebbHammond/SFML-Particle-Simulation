@@ -13,71 +13,52 @@ struct Node
 
 struct Grid
 {
-    std::vector<std::vector<Node *>> grid;
+    std::vector<std::vector<std::vector<int>>> grid;
 
     void createGrid(int rows, int columns)
     {
         for (int i = 0; i < rows; i++)
         {
-            std::vector<Node *> tempGrid = {};
+            std::vector<std::vector<int>> tempGrid = {};
             for (int j = 0; j < columns; j++)
             {
-                tempGrid.emplace_back(nullptr);
+                std::vector<int> tempVector = {};
+                tempGrid.emplace_back(tempVector);
             }
             grid.emplace_back(tempGrid);
         }
     }
 
-    void addNode(sf::Vector2i index, Node *node)
+    int addNode(sf::Vector2i index, int value)
     {
-        if (grid[index.x][index.y] == nullptr)
-        {
-            grid[index.x][index.y] = node;
-        }
-        else
-        {
-            for (Node *nPtr = grid[index.x][index.y]; nPtr != nullptr; nPtr = nPtr->ptr)
-            {
-                if (nPtr->ptr == nullptr)
-                {
-                    nPtr->ptr = node;
-                    break;
-                }
-            }
-        }
+        int valueIndex = grid[index.x][index.y].size() + 1;
+        grid[index.x][index.y].emplace_back(value);
+        return valueIndex;
     }
 
-    void removeNode(sf::Vector2i index, Node *node)
+    void removeNode(sf::Vector2i index, int valueIndex)
     {
-        if (grid[index.x][index.y] == node)
-        {
-            grid[index.x][index.y] = node->ptr;
-            node->ptr = nullptr;
-        }
-        else
-        {
-            for (Node *nPtr = grid[index.x][index.y]; nPtr != nullptr; nPtr = nPtr->ptr)
-            {
-                if (nPtr->ptr == node)
-                {
-                    nPtr->ptr = node->ptr;
-                    node->ptr = nullptr;
-                    break;
-                }
-            }
-        }
+        grid[index.x][index.y].erase(grid[index.x][index.y].begin() + valueIndex);
     }
 
-    void moveNode(sf::Vector2i prevIndex, sf::Vector2i newIndex, Node *node)
+    int moveNode(sf::Vector2i prevIndex, sf::Vector2i newIndex, int valueIndex, int value)
     {
-        removeNode(prevIndex, node);
-        addNode(newIndex, node);
+        // std::cout << "NewIndex: [" << newIndex.x << ", " << newIndex.y << "]\n";
+        // std::cout << "PrevIndex: [" << prevIndex.x << ", " << prevIndex.y << "]\n";
+        removeNode(prevIndex, valueIndex);
+
+        int indexValue = addNode(newIndex, value);
+        // std::cout << "IndexVal: " << indexValue << "\n";
+
+        return indexValue;
     }
 
-    sf::Vector2i getIndex(sf::Vector2f pos)
+    sf::Vector2i getIndex(sf::Vector2f pos, sf::Vector2i gridSize, sf::Vector2f windowSize)
     {
-        int floorX = floor(pos.x / 10);
-        int floorY = floor(pos.y / 10);
+        int floorX = floor(pos.x / (windowSize.x / gridSize.x));
+        int floorY = floor(pos.y / (windowSize.y / gridSize.y));
+
+        // std::cout << "Index: " << floorX << ", " << floorY << "\n";
 
         return {floorX, floorY};
     }
@@ -87,30 +68,22 @@ struct Grid
         std::cout << "[";
         for (auto list : grid)
         {
-            for (auto *node : list)
+            for (auto list1 : list)
             {
-                if (node == nullptr)
+                if (list1.empty())
                 {
-                    std::cout << node << ", ";
+                    std::cout << "0, ";
                 }
                 else
                 {
-                    if (node->ptr == nullptr)
-                    {
-                        std::cout << node << " : Index: " << node->index << ", ";
-                    }
-                    else
-                    {
-                        std::cout << "[";
-                        Node *nodePtr = node;
-                        while (nodePtr != nullptr)
-                        {
-                            std::cout << nodePtr << " : Index: " << nodePtr->index << ", ";
-                            nodePtr = nodePtr->ptr;
-                        }
+                    std::cout << "[";
 
-                        std::cout << "], ";
+                    for (int i : list1)
+                    {
+                        std::cout << i << ", ";
                     }
+
+                    std::cout << "], ";
                 }
             }
             std::cout << "\n";

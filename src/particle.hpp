@@ -7,6 +7,8 @@ struct Particle
     sf::Vector2f acceleration;
     float radius = 10.0f;
     int particleNum;
+    int indexValue = 0;
+    sf::Vector2i posIndex;
 
     Particle() = default;
     Particle(sf::Vector2f position_, float radius_, int particleNum_)
