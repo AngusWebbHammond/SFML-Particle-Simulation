@@ -26,6 +26,8 @@ int32_t main()
     constexpr int32_t window_width = 1000;
     constexpr int32_t window_height = 1000;
 
+    constexpr sf::Vector2i gridSize = {50, 50};
+
     clock_t c = clock();
     float fps;
     sf::Clock clock_frames = sf::Clock();
@@ -53,7 +55,7 @@ int32_t main()
 
     Renderer renderer(window);
     Solver solver(window_width, window_height);
-    solver.initialiseSolverGrid({10, 10});
+    solver.initialiseSolverGrid(gridSize);
 
     const int maxParticles = 100;
     const clock_t spawnDelay = CLOCKS_PER_SEC * 0.1;

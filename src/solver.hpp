@@ -1,6 +1,7 @@
 #include <math.h>
 #include "grid.hpp"
 #include "particle.hpp"
+#include <algorithm>
 
 class Solver
 {
@@ -33,7 +34,7 @@ public:
     {
         Particle particle(position, size, particleNum);
         particle.posIndex = grid.getIndex(particle.position, gridSize, {window_width, window_height});
-        particles.emplace_back(particle);
+        particles.push_back(particle);
         particle.acceleration = acceleration;
         int indexValue = grid.addNode(particle.posIndex, particle.particleNum);
         particle.indexValue = indexValue;
@@ -49,7 +50,6 @@ public:
 
 private:
     std::vector<Particle> particles;
-    std::vector<Node> nodes;
     Grid grid;
 
     sf::Vector2i gridSize;
@@ -60,6 +60,8 @@ private:
 
     float window_height;
     float window_width;
+
+    std::vector<sf::Vector2i> gridChecks = {{-1, -1}, {0, -1}, {1, -1}, {-1, 0}, {0, 0}, {1, 0}, {-1, 1}, {0, 1}, {1, 1}};
 
     void applyGravity()
     {
@@ -118,17 +120,44 @@ private:
         }
     }
 
+    std::vector<int> getGridParticles(sf::Vector2i indexGrid)
+    {
+        std::vector<sf::Vector2i> coords = {{-1, -1}, {0, -1}, {1, -1}, {-1, 0}, {0, 0}, {1, 0}, {-1, 1}, {0, 1}, {1, 1}};
+        for (int i = 0; i < 9; i++)
+        {
+            coords[i] += indexGrid;
+        }
+        std::vector<int> particlesGridIndexs;
+        for (int i = 0; i < coords.size(); i++)
+        {
+            // std::cout << "Pos Index: " << particles[i].posIndex.x << ", " << particles[i].posIndex.x << "\n";
+            if (coords[i].x != -1 && coords[i].y != -1 && coords[i].x != 10 && coords[i].y != 10)
+            {
+                // std::cout << coords[i].x << ", " << coords[i].y << "\n";
+                std::vector<int> values = grid.grid[coords[i].x][coords[i].y];
+                for (int j = 0; j < values.size(); j++)
+                {
+                    particlesGridIndexs.push_back(values[j]);
+                }
+            }
+        }
+        return particlesGridIndexs;
+    }
+
     void checkCollisions()
     {
         int particlesLen = particles.size();
         for (int p1Index = 0; p1Index < particlesLen; p1Index++)
         {
             Particle &particle1 = particles[p1Index];
-            for (int p2Index = 0; p2Index < particlesLen; p2Index++)
+
+            std::vector<int> particleGridIndexs = getGridParticles(particle1.posIndex);
+
+            for (int p2Index = 0; p2Index < particleGridIndexs.size(); p2Index++)
             {
-                if (p1Index != p2Index)
+                if (particle1.particleNum != particleGridIndexs[p2Index])
                 {
-                    Particle &particle2 = particles[p2Index];
+                    Particle &particle2 = particles[particleGridIndexs[p2Index] - 1];
                     sf::Vector2f p1Pos = particle1.position;
                     sf::Vector2f p2pos = particle2.position;
                     float summedRadius = particle1.radius + particle2.radius;
@@ -145,6 +174,7 @@ private:
                         particle1.position += (1 - massRatio) * normal * delta;
                         particle2.position -= massRatio * normal * delta;
                     }
+                    // std::cout << particle1.particleNum << ", " << particle2.particleNum << "\n";
                 }
             }
         }

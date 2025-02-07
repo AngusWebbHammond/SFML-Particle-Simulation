@@ -1,16 +1,6 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 
-struct Node;
-
-struct Node
-{
-    int index;
-    Node *ptr;
-
-    Node(int index_) : index{index_}, ptr{nullptr} {};
-};
-
 struct Grid
 {
     std::vector<std::vector<std::vector<int>>> grid;
@@ -23,16 +13,16 @@ struct Grid
             for (int j = 0; j < columns; j++)
             {
                 std::vector<int> tempVector = {};
-                tempGrid.emplace_back(tempVector);
+                tempGrid.push_back(tempVector);
             }
-            grid.emplace_back(tempGrid);
+            grid.push_back(tempGrid);
         }
     }
 
     int addNode(sf::Vector2i index, int value)
     {
         int valueIndex = grid[index.x][index.y].size() + 1;
-        grid[index.x][index.y].emplace_back(value);
+        grid[index.x][index.y].push_back(value);
         return valueIndex;
     }
 
