@@ -1,161 +1,16 @@
 #include <math.h>
-
-struct Node;
-
-struct Node
-{
-    int index;
-    Node *ptr;
-
-    Node(int index_) : index{index_}, ptr{nullptr} {};
-};
-
-struct Grid
-{
-    std::vector<Node *> grid;
-
-    void createGrid(int rows, int columns)
-    {
-        for (int i = 0; i < rows * columns; i++)
-        {
-            grid.emplace_back(nullptr);
-        }
-    }
-
-    void addNode(int indexGrid, Node *node)
-    {
-        if (grid[indexGrid] == nullptr)
-        {
-            grid[indexGrid] = node;
-        }
-        else
-        {
-            for (Node *nPtr = grid[indexGrid]; nPtr != nullptr; nPtr = nPtr->ptr)
-            {
-                if (nPtr->ptr == nullptr)
-                {
-                    nPtr->ptr = node;
-                    break;
-                }
-            }
-        }
-    }
-
-    Node *returnNodeAtIndex(int index)
-    {
-        return grid[index];
-    }
-
-    void removeNode(int indexGrid, Node *node)
-    {
-        if (grid[indexGrid] == node)
-        {
-            grid[indexGrid] = node->ptr;
-            node->ptr = nullptr;
-        }
-        else
-        {
-            for (Node *nPtr = grid[indexGrid]; nPtr != nullptr; nPtr = nPtr->ptr)
-            {
-                if (nPtr->ptr == node)
-                {
-                    nPtr->ptr = node->ptr;
-                    node->ptr = nullptr;
-                    break;
-                }
-            }
-        }
-    }
-
-    void moveNode(int prevIndexGrid, int newIndexGrid, Node *node)
-    {
-        removeNode(prevIndexGrid, node);
-        addNode(newIndexGrid, node);
-    }
-
-    void printGrid()
-    {
-        for (auto *node : grid)
-        {
-            if (node == nullptr)
-            {
-                std::cout << node << ", ";
-            }
-            else
-            {
-                if (node->ptr == nullptr)
-                {
-                    std::cout << node << " : Index: " << node->index << ", ";
-                }
-                else
-                {
-                    std::cout << "[";
-                    Node *nodePtr = node;
-                    while (nodePtr != nullptr)
-                    {
-                        std::cout << nodePtr << " : Index: " << nodePtr->index << ", ";
-                        nodePtr = nodePtr->ptr;
-                    }
-
-                    std::cout << "], ";
-                }
-            }
-        }
-        std::cout << "\n";
-    }
-};
-
-struct Particle
-{
-    sf::Vector2f position;
-    sf::Vector2f last_position;
-    sf::Vector2f acceleration;
-    float radius = 10.0f;
-    int particleNum;
-
-    Particle() = default;
-    Particle(sf::Vector2f position_, float radius_, int particleNum_)
-        : last_position{position_},
-          position{position_},
-          acceleration{10000.0f, 0.0f},
-          radius{radius_},
-          particleNum{particleNum_} {}
-
-    void update(float dt)
-    {
-        // Verlet Intergration
-        sf::Vector2f displacement = position - last_position;
-        last_position = position;
-        position = position + displacement + acceleration * dt * dt;
-        acceleration = {};
-    }
-
-    sf::Vector2f getVelocity()
-    {
-        sf::Vector2f velocity = position - last_position;
-        return velocity;
-    }
-
-    void addVelcity(sf::Vector2f v, float dt)
-    {
-        last_position -= v * dt;
-    }
-
-    void setVelocity(sf::Vector2f v, float dt)
-    {
-        last_position = position - v * dt;
-    }
-
-    void accelerate(sf::Vector2f a)
-    {
-        acceleration += a;
-    }
-};
+#include "grid.hpp"
+#include "particle.hpp"
 
 class Solver
 {
 public:
     Solver(float width, float height) : window_width{width}, window_height{height} {}
+
+    void initialiseSolverGrid()
+    {
+        grid.createGrid(20, 20);
+    }
 
     void update()
     {
@@ -177,6 +32,8 @@ public:
     {
         particles.emplace_back(Particle(position, size, particleNum));
         particles.back().acceleration = acceleration;
+        nodes.emplace_back(Node(particles.back().particleNum));
+        grid.addNode(grid.getIndex(particles.back().position), &nodes.back());
     }
 
     void setVelocity(sf::Vector2f velocity)
@@ -188,9 +45,13 @@ public:
 
 private:
     std::vector<Particle> particles;
+    std::vector<Node> nodes;
+    Grid grid;
+
     float dt = 1.0f / 60;
     int subStep = 8;
     sf::Vector2f gravity = {0.0f, 200.0f / subStep};
+
     float window_height;
     float window_width;
 
@@ -204,9 +65,18 @@ private:
 
     void updateParticles()
     {
+        int pPos;
+        int pos;
         for (auto &particle : particles)
         {
             particle.update(dt);
+
+            pPos = grid.getIndex(particle.last_position);
+            pos = grid.getIndex(particle.position);
+            if (pos != pPos)
+            {
+                grid.moveNode(pPos, pos, &nodes[particle.particleNum - 1]);
+            }
         }
     }
 
