@@ -33,22 +33,15 @@ struct Grid
 
     int moveNode(sf::Vector2i prevIndex, sf::Vector2i newIndex, int valueIndex, int value)
     {
-        // std::cout << "NewIndex: [" << newIndex.x << ", " << newIndex.y << "]\n";
-        // std::cout << "PrevIndex: [" << prevIndex.x << ", " << prevIndex.y << "]\n";
         removeNode(prevIndex, valueIndex);
-
         int indexValue = addNode(newIndex, value);
-        // std::cout << "IndexVal: " << indexValue << "\n";
-
         return indexValue;
     }
 
     sf::Vector2i getIndex(sf::Vector2f pos, sf::Vector2i gridSize, sf::Vector2f windowSize)
     {
-        int floorX = floor(pos.x / (windowSize.x / gridSize.x));
-        int floorY = floor(pos.y / (windowSize.y / gridSize.y));
-
-        // std::cout << "Index: " << floorX << ", " << floorY << "\n";
+        int floorX = floor(pos.x / (windowSize.x / (gridSize.x + 1)));
+        int floorY = floor(pos.y / (windowSize.y / (gridSize.y + 1)));
 
         return {floorX, floorY};
     }
