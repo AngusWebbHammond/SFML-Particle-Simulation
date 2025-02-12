@@ -41,8 +41,8 @@ int32_t main()
     Solver solver(window_width, window_height);
     solver.initialiseSolverGrid(gridSize);
 
-    const int maxParticles = 750;
-    const clock_t spawnDelay = CLOCKS_PER_SEC * 0.05;
+    const int maxParticles = 1500;
+    const clock_t spawnDelay = CLOCKS_PER_SEC * 0.03;
     const sf::Vector2f spawnPosition = {360, 360};
 
     int particleNum = 0;

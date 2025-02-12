@@ -14,7 +14,7 @@ struct Particle
     Particle(sf::Vector2f position_, float radius_, int particleNum_)
         : last_position{position_},
           position{position_},
-          acceleration{10000.0f, 0.0f},
+          acceleration{5000.0f, 0.0f},
           radius{radius_},
           particleNum{particleNum_} {}
 
