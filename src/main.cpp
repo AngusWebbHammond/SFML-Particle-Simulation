@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "renderer.hpp"
 #include <time.h>
+#include <fstream>
 
 int32_t main()
 {
@@ -41,11 +42,19 @@ int32_t main()
     Solver solver(window_width, window_height);
     solver.initialiseSolverGrid(gridSize);
 
-    const int maxParticles = 1500;
+    const int maxParticles = 2000;
     const clock_t spawnDelay = CLOCKS_PER_SEC * 0.03;
     const sf::Vector2f spawnPosition = {360, 360};
 
     int particleNum = 0;
+
+    std::ofstream file("data.txt");
+
+    if (!file.is_open())
+    {
+        std::cout << "File failed to open. \n";
+        return 1;
+    }
 
     while (window.isOpen())
     {
@@ -76,6 +85,9 @@ int32_t main()
 
         previousTime = currentTime;
         window.display();
+        file << fps << ", " << solver.getParticles().size() << "\n";
     }
+
+    file.close();
     return 0;
 }
