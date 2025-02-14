@@ -34,8 +34,7 @@ struct Grid
     int moveNode(sf::Vector2i prevIndex, sf::Vector2i newIndex, int valueIndex, int value)
     {
         removeNode(prevIndex, valueIndex);
-        int indexValue = addNode(newIndex, value);
-        return indexValue;
+        return addNode(newIndex, value);
     }
 
     sf::Vector2i getIndex(sf::Vector2f pos, sf::Vector2i gridSize, sf::Vector2f windowSize)

@@ -60,8 +60,6 @@ private:
     float window_height;
     float window_width;
 
-    std::vector<sf::Vector2i> gridChecks = {{-1, -1}, {0, -1}, {1, -1}, {-1, 0}, {0, 0}, {1, 0}, {-1, 1}, {0, 1}, {1, 1}};
-
     void applyGravity()
     {
         for (auto &particle : particles)
@@ -90,7 +88,7 @@ private:
     {
         for (auto &particle : particles)
         {
-            float damp = 0.8f;
+            float damp = 0.7f;
             const sf::Vector2f pos = particle.position;
             sf::Vector2f vel = particle.getVelocity();
             sf::Vector2f newPosition = particle.position;
@@ -119,7 +117,7 @@ private:
 
     std::vector<int> getGridParticles(sf::Vector2i indexGrid)
     {
-        std::vector<sf::Vector2i> coords = gridChecks;
+        std::vector<sf::Vector2i> coords = {{-1, -1}, {0, -1}, {1, -1}, {-1, 0}, {0, 0}, {1, 0}, {-1, 1}, {0, 1}, {1, 1}};
         for (int i = 0; i < 9; i++)
         {
             coords[i] += indexGrid;
